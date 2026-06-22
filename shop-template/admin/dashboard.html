@@ -267,10 +267,9 @@
           btn.addEventListener("click", () => updateOrderStatus(btn.dataset.id, "cancelled"));
         });
       } catch (e) {
-        ordersEmpty.textContent = "অর্ডার লোড করতে সমস্যা হয়েছে।";
-        ordersEmpty.style.display = "block";
-        ordersTable.style.display = "none";
-      }
+  console.error("LOAD ORDER ERROR:", e);
+  alert(e.message);
+}
     }
 
     async function updateOrderStatus(orderId, newStatus) {
