@@ -222,8 +222,9 @@
           wrap.appendChild(card);
         });
       } catch (e) {
-        wrap.innerHTML = `<p class="muted">অর্ডার লোড করতে সমস্যা হয়েছে।</p>`;
-      }
+  console.error("Dashboard order error:", e);
+  alert(e.message);
+}
     }
 
     onAuthStateChanged(auth, async (user) => {
