@@ -74,7 +74,7 @@
   table.zone-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
   table.zone-table th, table.zone-table td { padding: 6px 6px; text-align: left; }
   table.zone-table th { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; }
-  table.zone-table input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; font-family: inherit; }
+  table.zone-table input, table.zone-table select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; font-family: inherit; }
 
   .actions-row { display: flex; gap: 14px; align-items: center; }
   button.primary { background: var(--accent); color: #fff; border: none; padding: 12px 26px; border-radius: 8px; font-size: 14.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
@@ -194,7 +194,7 @@
       <div class="card">
         <h2>ডেলিভারি জোন</h2>
         <table class="zone-table">
-          <thead><tr><th>জোনের নাম</th><th>চার্জ (৳)</th><th></th></tr></thead>
+          <thead><tr><th>বিভাগ</th><th>চার্জ (৳)</th><th></th></tr></thead>
           <tbody id="zonesBody"></tbody>
         </table>
         <button type="button" class="small-btn add" id="addZoneBtn">+ জোন যুক্ত করুন</button>
@@ -211,6 +211,7 @@
     import { requireAdmin, adminLogout } from "../assets/js/admin-auth-guard.js";
     import { db } from "../assets/js/firebase-config.js";
     import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from "../assets/js/cloudinary-config.js";
+    import { DIVISION_NAMES } from "../assets/js/bd-locations.js";
     import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const user = await requireAdmin();
@@ -393,17 +394,27 @@
 
     function renderZonesTable() {
       const body = document.getElementById("zonesBody");
+      const divisionOptions = `<option value="default">ডিফল্ট (বাকি সব বিভাগ)</option>` +
+        DIVISION_NAMES.map((d) => `<option value="${d}">${d}</option>`).join("");
+
       body.innerHTML = zones.map((z, i) => `
         <tr>
-          <td><input type="text" class="zone-name" data-i="${i}" value="${escapeAttr(z.zoneName)}" placeholder="যেমন: ঢাকার ভিতরে"></td>
+          <td>
+            <select class="zone-division" data-i="${i}">
+              ${divisionOptions}
+            </select>
+          </td>
           <td><input type="number" class="zone-charge" data-i="${i}" value="${z.charge ?? ""}" min="0"></td>
           <td><button type="button" class="small-btn remove zone-remove" data-i="${i}">✕</button></td>
         </tr>
       `).join("");
 
-      body.querySelectorAll(".zone-name").forEach((el) => el.addEventListener("input", (e) => {
-        zones[Number(e.target.dataset.i)].zoneName = e.target.value;
-      }));
+      body.querySelectorAll(".zone-division").forEach((el) => {
+        el.value = zones[Number(el.dataset.i)].division || "default";
+        el.addEventListener("change", (e) => {
+          zones[Number(e.target.dataset.i)].division = e.target.value;
+        });
+      });
       body.querySelectorAll(".zone-charge").forEach((el) => el.addEventListener("input", (e) => {
         zones[Number(e.target.dataset.i)].charge = Number(e.target.value) || 0;
       }));
@@ -414,7 +425,7 @@
     }
 
     document.getElementById("addZoneBtn").addEventListener("click", () => {
-      zones.push({ zoneName: "", charge: 0 });
+      zones.push({ division: "default", charge: 0 });
       renderZonesTable();
     });
 
