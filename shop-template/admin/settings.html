@@ -200,6 +200,21 @@
         <button type="button" class="small-btn add" id="addZoneBtn">+ জোন যুক্ত করুন</button>
       </div>
 
+      <div class="card">
+        <h2>অ্যানালিটিক্স</h2>
+        <div class="form-row">
+          <div class="field">
+            <label for="gaMeasurementId">Google Analytics (GA4) Measurement ID</label>
+            <input type="text" id="gaMeasurementId" placeholder="G-XXXXXXXXXX">
+          </div>
+          <div class="field">
+            <label for="metaPixelId">Meta (Facebook) Pixel ID</label>
+            <input type="text" id="metaPixelId" placeholder="1234567890123456">
+          </div>
+        </div>
+        <div class="hint">ফাঁকা রাখলে সেই ট্র্যাকিং লোড হবে না — কোনোটা একটা বা দুটোই দিতে পারেন।</div>
+      </div>
+
       <div class="actions-row">
         <button type="button" class="primary" id="saveBtn">সব সেভ করুন</button>
         <span class="hint" id="saveStatus"></span>
@@ -349,6 +364,7 @@
         logoUrl = await uploadToCloudinary(file);
         renderLogoPreview();
       } catch (err) {
+        console.error("লোগো আপলোড করতে সমস্যা হয়েছে:", err);
         alert("লোগো আপলোড করতে সমস্যা হয়েছে।");
       }
       e.target.value = "";
@@ -382,6 +398,7 @@
         try {
           bannerImages.push(await uploadToCloudinary(file));
         } catch (err) {
+          console.error("ব্যানার আপলোড করতে সমস্যা হয়েছে:", err);
           alert("একটা ছবি আপলোড করতে সমস্যা হয়েছে।");
         }
       }
@@ -442,6 +459,8 @@
           document.getElementById("whatsappNumber").value = s.whatsappNumber || "";
           document.getElementById("facebookPageLink").value = s.facebookPageLink || "";
           document.getElementById("defaultLanguage").value = s.defaultLanguage || "bn";
+          document.getElementById("gaMeasurementId").value = s.gaMeasurementId || "";
+          document.getElementById("metaPixelId").value = s.metaPixelId || "";
 
           logoUrl = s.logoUrl || "";
           bannerImages = Array.isArray(s.bannerImages) ? [...s.bannerImages] : [];
@@ -459,6 +478,7 @@
         renderCustomSlots();
         renderZonesTable();
       } catch (e) {
+        console.error("সেটিংস লোড করতে সমস্যা হয়েছে:", e);
         alert("সেটিংস লোড করতে সমস্যা হয়েছে।");
       }
     }
@@ -486,6 +506,8 @@
           whatsappNumber: document.getElementById("whatsappNumber").value.trim(),
           facebookPageLink: document.getElementById("facebookPageLink").value.trim(),
           defaultLanguage: document.getElementById("defaultLanguage").value,
+          gaMeasurementId: document.getElementById("gaMeasurementId").value.trim(),
+          metaPixelId: document.getElementById("metaPixelId").value.trim(),
           logoUrl,
           bannerImages,
           theme: readThemeFields(),
@@ -496,6 +518,7 @@
         document.getElementById("saveStatus").textContent = "সেভ হয়েছে ✓";
         setTimeout(() => { document.getElementById("saveStatus").textContent = ""; }, 2500);
       } catch (e) {
+        console.error("সেভ করতে সমস্যা হয়েছে:", e);
         alert("সেভ করতে সমস্যা হয়েছে।");
       } finally {
         saveBtn.disabled = false;
