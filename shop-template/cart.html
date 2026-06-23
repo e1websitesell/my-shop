@@ -137,7 +137,7 @@
             <label for="addressDetails">সম্পূর্ণ ঠিকানা / এক্সট্রা ডিটেইলস *</label>
             <textarea id="addressDetails" rows="3" required></textarea>
           </div>
-          <button type="submit" id="placeOrderBtn" class="place-order-btn">অর্ডার করুন </button>
+          <button type="submit" id="placeOrderBtn" class="place-order-btn">Order Now</button>
         </form>
       </div>
     </div>
@@ -162,7 +162,7 @@
 
   <script type="module">
     import { db, auth } from "./assets/js/firebase-config.js";
-    import { loadThemeAndSettings } from "./assets/js/theme-loader.js";
+    import { loadThemeAndSettings, trackPurchase } from "./assets/js/theme-loader.js";
     import { getLang, setLang, applyTranslations } from "./assets/js/translations.js";
     import { getCart, saveCart, updateCartBadge } from "./assets/js/cart.js";
     import { DIVISIONS, DIVISION_NAMES } from "./assets/js/bd-locations.js";
@@ -313,6 +313,7 @@
         statusEl.className = "coupon-status success";
         updateSummary();
       } catch (e) {
+        console.error("কুপন চেক করতে সমস্যা হয়েছে:", e);
         statusEl.textContent = "কুপন চেক করতে সমস্যা হয়েছে।";
         statusEl.className = "coupon-status error";
       }
@@ -396,7 +397,9 @@
       submitBtn.textContent = "অর্ডার হচ্ছে...";
 
       try {
-        await addDoc(collection(db, "orders"), orderData);
+        const docRef = await addDoc(collection(db, "orders"), orderData);
+
+        trackPurchase({ ...orderData, orderId: docRef.id });
 
         if (settings.whatsappNumber) {
           const itemsText = cart.map((item) =>
@@ -415,9 +418,10 @@
         document.getElementById("cartListSection").style.display = "none";
         document.getElementById("orderSuccess").style.display = "block";
       } catch (err) {
-        alert("অর্ডার করতে সমস্যা হয়েছে।");
+        console.error("অর্ডার করতে সমস্যা হয়েছে:", err);
+        alert("অর্ডার করতে সমস্যা হয়েছে: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.textContent = "অর্ডার করুন ";
+        submitBtn.textContent = "Order Now";
       }
     });
 
@@ -426,7 +430,12 @@
       updateCartBadge();
       document.getElementById("langToggle").textContent = getLang() === "bn" ? "English" : "বাংলা";
 
-      settings = await loadThemeAndSettings();
+      try {
+        settings = await loadThemeAndSettings();
+      } catch (e) {
+        console.error("সেটিংস লোড করতে সমস্যা হয়েছে:", e);
+      }
+
       const lang = getLang();
       const shopName = lang === "bn" ? (settings.shopName_bn || settings.shopName_en) : (settings.shopName_en || settings.shopName_bn);
       document.getElementById("shopNameText").textContent = shopName || "Shop";
