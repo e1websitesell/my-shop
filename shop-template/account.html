@@ -6,20 +6,13 @@
 <title>Account</title>
 <style>
   :root {
-    --primary-color: #1a1d29;
-    --accent-color: #6b7280;
-    --site-font: system-ui, sans-serif;
-    --btn-radius: 8px;
-    --ink: #1a1d29;
-    --ink-soft: #6b7280;
-    --line: #e5e7eb;
-    --bg: #f7f7f9;
+    --primary-color: #1a1d29; --accent-color: #6b7280; --site-font: system-ui, sans-serif;
+    --btn-radius: 8px; --ink: #1a1d29; --ink-soft: #6b7280; --line: #e5e7eb; --bg: #f7f7f9;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: var(--site-font); color: var(--ink); background: #fff; }
   a { text-decoration: none; color: inherit; }
   .muted { color: var(--ink-soft); font-size: 14px; }
-
   .site-header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; }
   .header-inner { max-width: 1140px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
   .brand { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; }
@@ -28,11 +21,9 @@
   .cart-link { position: relative; }
   .cart-badge { position: absolute; top: -9px; right: -14px; background: var(--accent-color); color: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
   .lang-toggle { border: 1px solid var(--line); background: #fff; padding: 7px 14px; border-radius: var(--btn-radius); font-size: 13px; cursor: pointer; font-family: inherit; }
-
   .page-inner { max-width: 720px; margin: 0 auto; padding: 32px 20px 70px; }
   .page-title { font-size: 24px; font-weight: 700; margin: 0 0 24px; display: flex; justify-content: space-between; align-items: center; }
   .logout-btn { border: 1px solid var(--line); background: #fff; padding: 9px 18px; border-radius: var(--btn-radius); font-size: 13.5px; cursor: pointer; font-family: inherit; }
-
   .card { background: var(--bg); border-radius: 12px; padding: 22px 24px; margin-bottom: 28px; }
   .card h2 { font-size: 16px; margin: 0 0 16px; font-weight: 700; }
   .field { margin-bottom: 14px; }
@@ -41,7 +32,6 @@
   .field input:disabled { color: var(--ink-soft); background: #f0f0f2; }
   .save-row { display: flex; align-items: center; gap: 14px; }
   .save-btn { background: var(--primary-color); color: #fff; border: none; padding: 10px 22px; border-radius: var(--btn-radius); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
-
   .order-card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
   .order-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
   .order-date { color: var(--ink-soft); }
@@ -51,7 +41,6 @@
   .status-cancelled { background: #fee2e2; color: #b91c1c; }
   .order-items { font-size: 14px; margin-bottom: 6px; }
   .order-total { font-weight: 700; font-size: 14.5px; }
-
   .site-footer { border-top: 1px solid var(--line); padding: 28px 20px; margin-top: 40px; }
   .footer-inner { max-width: 1140px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13.5px; color: var(--ink-soft); }
 </style>
@@ -118,10 +107,7 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     function escapeAttr(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;");
+      return String(str ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
     }
 
     document.getElementById("langToggle").addEventListener("click", () => {
@@ -130,8 +116,13 @@
     });
 
     document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "index.html";
+      try {
+        await signOut(auth);
+        window.location.href = "index.html";
+      } catch (e) {
+        console.error("লগআউট করতে সমস্যা হয়েছে:", e);
+        alert("লগআউট করতে সমস্যা হয়েছে: " + e.message);
+      }
     });
 
     let currentUser = null;
@@ -144,7 +135,8 @@
           await setDoc(doc(db, "users", uid, "cart", cartItemId), item);
         }
       } catch (e) {
-        // ব্যাকগ্রাউন্ড সিঙ্ক, ফেইল হলেও পেজের বাকি অংশ কাজ করবে
+        // ব্যাকগ্রাউন্ড সিঙ্ক, ফেইল হলেও পেজের বাকি অংশ কাজ করবে, কিন্তু কারণ লগ করা হচ্ছে
+        console.error("কার্ট সিঙ্ক করতে সমস্যা হয়েছে:", e);
       }
     }
 
@@ -160,7 +152,7 @@
           document.getElementById("profileName").value = currentUser.displayName || "";
         }
       } catch (e) {
-        // প্রোফাইল লোড না হলেও বাকি পেজ কাজ করবে
+        console.error("প্রোফাইল লোড করতে সমস্যা হয়েছে:", e);
       }
     }
 
@@ -179,7 +171,8 @@
         document.getElementById("profileStatus").textContent = "সেভ হয়েছে ✓";
         setTimeout(() => { document.getElementById("profileStatus").textContent = ""; }, 2000);
       } catch (e) {
-        alert("সেভ করতে সমস্যা হয়েছে।");
+        console.error("প্রোফাইল সেভ করতে সমস্যা হয়েছে:", e);
+        alert("সেভ করতে সমস্যা হয়েছে: " + e.message);
       } finally {
         btn.disabled = false;
         btn.textContent = "সেভ করুন";
@@ -190,8 +183,6 @@
       const wrap = document.getElementById("ordersList");
       wrap.innerHTML = `<p class="muted">লোড হচ্ছে...</p>`;
       try {
-        // এই কোয়েরির জন্যও Firestore প্রথমবার কম্পোজিট ইনডেক্স বানাতে বলতে
-        // পারে, কনসোলে দেখানো লিংকে ক্লিক করলেই হয়ে যাবে।
         const q = query(
           collection(db, "orders"),
           where("customerUid", "==", currentUser.uid),
@@ -208,9 +199,7 @@
         const statusLabel = { pending: "পেন্ডিং", completed: "সম্পন্ন", cancelled: "বাতিল" };
         snap.forEach((docSnap) => {
           const o = docSnap.data();
-          const itemsText = (o.items || []).map((i) =>
-            i.productName + (i.variantName ? " (" + i.variantName + ")" : "") + " x" + i.qty
-          ).join(", ");
+          const itemsText = (o.items || []).map((i) => i.productName + (i.variantName ? " (" + i.variantName + ")" : "") + " x" + i.qty).join(", ");
           const time = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().toLocaleDateString("bn-BD") : "";
 
           const card = document.createElement("div");
@@ -222,9 +211,9 @@
           wrap.appendChild(card);
         });
       } catch (e) {
-  console.error("অর্ডার লোড করতে সমস্যা হয়েছে।", e);
-  alert(e.message);
-}
+        console.error("অর্ডার লোড করতে সমস্যা হয়েছে:", e);
+        wrap.innerHTML = `<p class="muted">অর্ডার লোড করতে সমস্যা হয়েছে। কনসোল (F12) চেক করুন।</p>`;
+      }
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -238,17 +227,23 @@
       updateCartBadge();
       document.getElementById("langToggle").textContent = getLang() === "bn" ? "English" : "বাংলা";
 
-      const settings = await loadThemeAndSettings();
-      const lang = getLang();
-      const shopName = lang === "bn" ? (settings.shopName_bn || settings.shopName_en) : (settings.shopName_en || settings.shopName_bn);
-      document.getElementById("shopNameText").textContent = shopName || "Shop";
-      document.getElementById("footerShopName").textContent = shopName || "Shop";
-      document.getElementById("footerYear").textContent = new Date().getFullYear();
-      if (settings.logoUrl) {
-        const logoImg = document.getElementById("logoImg");
-        logoImg.src = settings.logoUrl;
-        logoImg.style.display = "inline-block";
+      try {
+        const settings = await loadThemeAndSettings();
+        const lang = getLang();
+        const shopName = lang === "bn" ? (settings.shopName_bn || settings.shopName_en) : (settings.shopName_en || settings.shopName_bn);
+        document.getElementById("shopNameText").textContent = shopName || "Shop";
+        document.getElementById("footerShopName").textContent = shopName || "Shop";
+        if (settings.logoUrl) {
+          const logoImg = document.getElementById("logoImg");
+          logoImg.src = settings.logoUrl;
+          logoImg.style.display = "inline-block";
+        }
+      } catch (e) {
+        console.error("শপ ইনফো লোড করতে সমস্যা হয়েছে:", e);
+        document.getElementById("shopNameText").textContent = "Shop";
+        document.getElementById("footerShopName").textContent = "Shop";
       }
+      document.getElementById("footerYear").textContent = new Date().getFullYear();
 
       await pushCartToFirestore(user.uid);
       loadProfile();
