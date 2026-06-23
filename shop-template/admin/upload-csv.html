@@ -198,27 +198,39 @@
         complete: (results) => {
           processRows(results.data);
         },
-        error: () => {
-          alert("CSV ফাইল পড়তে সমস্যা হয়েছে।");
-        }
+       error: (err) => {
+  console.error("CSV পার্স করতে সমস্যা হয়েছে:", err);
+  alert("CSV ফাইল পড়তে সমস্যা হয়েছে: " + err.message);
+}
       });
     });
 
-    async function processRows(rows) {
-      let knownCategories = new Set();
-      try {
-        const snap = await getDocs(collection(db, "categories"));
-        snap.forEach((d) => {
-          const c = d.data();
-          if (c.slug) knownCategories.add(c.slug);
-        });
-      } catch (e) {
-        // ক্যাটাগরি লিস্ট না পেলেও ভ্যালিডেশন চলবে, শুধু category-exists চেকটা স্কিপ হবে
-      }
+   async function processRows(rows) {
+  let knownCategories = new Set();
 
-      validatedRows = rows.map((row, index) => validateRow(row, index, knownCategories));
-      renderPreview();
-    }
+  try {
+    const snap = await getDocs(collection(db, "categories"));
+
+    snap.forEach((d) => {
+      const c = d.data();
+
+      if (c.slug) {
+        knownCategories.add(c.slug);
+      }
+    });
+  } catch (e) {
+    console.error(
+      "ক্যাটাগরি লিস্ট লোড করতে সমস্যা হয়েছে (category-exists চেক স্কিপ হচ্ছে):",
+      e
+    );
+  }
+
+  validatedRows = rows.map((row, index) =>
+    validateRow(row, index, knownCategories)
+  );
+
+  renderPreview();
+}
 
     function validateRow(row, index, knownCategories) {
       const errors = [];
@@ -354,8 +366,16 @@
           await addDoc(collection(db, "products"), productData);
           successCount++;
         } catch (e) {
-          failures.push(`লাইন ${r.rowNumber}: সেভ করতে সমস্যা হয়েছে`);
-        }
+
+  console.error(
+    "লাইন " + r.rowNumber + " ইম্পোর্ট করতে সমস্যা হয়েছে:",
+    e
+  );
+
+  failures.push(
+    `লাইন ${r.rowNumber}: ${e.message}`
+  );
+}
       }
 
       importBtn.textContent = "ইম্পোর্ট করুন";
