@@ -173,7 +173,7 @@
           });
         });
       } catch (e) {
-        // ক্যাটাগরি পিল লোড না হলেও সার্চ/প্রোডাক্ট লিস্ট কাজ করবে
+        console.error("ক্যাটাগরি পিল লোড করতে সমস্যা হয়েছে:", e);
       }
     }
 
@@ -228,7 +228,8 @@
 
         return (
           "<div class='product-card-wrap'>" +
-            "<a href='product.html?id=" + p.id + "' class='product-card'>" +
+            // স্ট্যাটিক জেনারেটেড পেজে যাচ্ছে (SEO/GEO-এর জন্য), ?id= ফরম্যাট না
+            "<a href='product/" + p.id + ".html' class='product-card'>" +
               "<div class='product-img' style=\"background-image:url('" + escapeAttr(img) + "');\"></div>" +
               "<div class='product-info'>" +
                 "<div class='product-name'>" + escapeAttr(name) + "</div>" +
