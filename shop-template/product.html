@@ -309,7 +309,9 @@
         productData.reviewCount = count;
         renderRatingSummary();
       } catch (e) {
-        // রেটিং রিক্যালকুলেট না হলেও রিভিউ সেভ হয়ে গেছে
+        // রেটিং রিক্যালকুলেট না হলেও রিভিউ সেভ হয়ে গেছে, তাই এখানে শুধু
+        // লগ করা হচ্ছে, ইউজারকে ব্লক করা হচ্ছে না।
+        console.error("রেটিং রিক্যালকুলেট করতে সমস্যা হয়েছে:", e);
       }
     }
 
@@ -336,7 +338,8 @@
           wrap.appendChild(item);
         });
       } catch (e) {
-        wrap.innerHTML = `<p class="muted">রিভিউ লোড করতে সমস্যা হয়েছে।</p>`;
+        console.error("রিভিউ লোড করতে সমস্যা হয়েছে:", e);
+        wrap.innerHTML = `<p class="muted">রিভিউ লোড করতে সমস্যা হয়েছে। কনসোল (F12) চেক করুন।</p>`;
       }
     }
 
@@ -364,7 +367,8 @@
         document.getElementById("reviewComment").value = "";
         loadReviews();
       } catch (err) {
-        alert("রিভিউ সাবমিট করতে সমস্যা হয়েছে।");
+        console.error("রিভিউ সাবমিট করতে সমস্যা হয়েছে:", err);
+        alert("রিভিউ সাবমিট করতে সমস্যা হয়েছে: " + err.message);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "সাবমিট করুন";
@@ -414,7 +418,8 @@
         renderProduct();
         loadReviews();
       } catch (e) {
-        document.getElementById("notFound").textContent = "প্রোডাক্ট লোড করতে সমস্যা হয়েছে।";
+        console.error("প্রোডাক্ট লোড করতে সমস্যা হয়েছে:", e);
+        document.getElementById("notFound").textContent = "প্রোডাক্ট লোড করতে সমস্যা হয়েছে। কনসোল (F12) চেক করুন।";
         document.getElementById("notFound").style.display = "block";
         document.getElementById("productWrap").style.display = "none";
       }
