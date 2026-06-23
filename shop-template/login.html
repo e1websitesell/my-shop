@@ -6,34 +6,23 @@
 <title>Login</title>
 <style>
   :root {
-    --primary-color: #1a1d29;
-    --accent-color: #6b7280;
-    --site-font: system-ui, sans-serif;
-    --btn-radius: 8px;
-    --ink: #1a1d29;
-    --ink-soft: #6b7280;
-    --line: #e5e7eb;
-    --bg: #f7f7f9;
+    --primary-color: #1a1d29; --accent-color: #6b7280; --site-font: system-ui, sans-serif;
+    --btn-radius: 8px; --ink: #1a1d29; --ink-soft: #6b7280; --line: #e5e7eb; --bg: #f7f7f9;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: var(--site-font); color: var(--ink); background: var(--bg); }
   a { text-decoration: none; color: inherit; }
-
   .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
   .auth-card { width: 100%; max-width: 380px; background: #fff; border-radius: 14px; padding: 36px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
   .auth-brand { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 24px; }
-
   .tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
   .tab-btn { flex: 1; background: none; border: none; padding: 10px; font-size: 14.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
   .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
   .field input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--btn-radius); font-size: 14.5px; font-family: inherit; }
-
   .submit-btn { width: 100%; background: var(--primary-color); color: #fff; border: none; padding: 12px; border-radius: var(--btn-radius); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 4px; }
   .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
   .back-link { text-align: center; margin-top: 18px; font-size: 13.5px; }
   .back-link a { color: var(--primary-color); font-weight: 600; }
 </style>
@@ -99,7 +88,7 @@
       if (code.includes("wrong-password") || code.includes("invalid-credential")) return "ইমেইল বা পাসওয়ার্ড ভুল।";
       if (code.includes("user-not-found")) return "এই ইমেইলে কোনো অ্যাকাউন্ট নেই।";
       if (code.includes("weak-password")) return "পাসওয়ার্ড খুব দুর্বল।";
-      return "একটা সমস্যা হয়েছে, আবার চেষ্টা করুন।";
+      return "একটা সমস্যা হয়েছে: " + (err.message || code || "অজানা এরর");
     }
 
     async function mergeCartOnLogin(uid) {
@@ -115,7 +104,8 @@
         });
         saveCart(localCart);
       } catch (e) {
-        // কার্ট মার্জ ফেইল হলেও লগইন সফল ধরে নেওয়া হচ্ছে
+        // কার্ট মার্জ ফেইল হলেও লগইন সফল ধরে নেওয়া হচ্ছে, কিন্তু কারণ লগ করা হচ্ছে
+        console.error("কার্ট মার্জ করতে সমস্যা হয়েছে:", e);
       }
     }
 
@@ -131,6 +121,7 @@
         await mergeCartOnLogin(cred.user.uid);
         window.location.href = "account.html";
       } catch (err) {
+        console.error("লগইন করতে সমস্যা হয়েছে:", err);
         alert(getErrorMessage(err));
         btn.disabled = false;
         btn.textContent = "লগইন";
@@ -160,6 +151,7 @@
         await mergeCartOnLogin(cred.user.uid);
         window.location.href = "account.html";
       } catch (err) {
+        console.error("অ্যাকাউন্ট বানাতে সমস্যা হয়েছে:", err);
         alert(getErrorMessage(err));
         btn.disabled = false;
         btn.textContent = "অ্যাকাউন্ট খুলুন";
@@ -167,10 +159,15 @@
     });
 
     async function init() {
-      const settings = await loadThemeAndSettings();
-      const lang = getLang();
-      const shopName = lang === "bn" ? (settings.shopName_bn || settings.shopName_en) : (settings.shopName_en || settings.shopName_bn);
-      document.getElementById("shopNameText").textContent = shopName || "Shop";
+      try {
+        const settings = await loadThemeAndSettings();
+        const lang = getLang();
+        const shopName = lang === "bn" ? (settings.shopName_bn || settings.shopName_en) : (settings.shopName_en || settings.shopName_bn);
+        document.getElementById("shopNameText").textContent = shopName || "Shop";
+      } catch (e) {
+        console.error("শপ ইনফো লোড করতে সমস্যা হয়েছে:", e);
+        document.getElementById("shopNameText").textContent = "Shop";
+      }
     }
     init();
   </script>
