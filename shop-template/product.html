@@ -195,7 +195,10 @@
     });
 
     const urlParams = new URLSearchParams(location.search);
-    const productId = urlParams.get("id");
+    // স্ট্যাটিক জেনারেটেড পেজে (যেমন /product/abc123.html) ?id= থাকবে না,
+    // তখন ফাইলনেম থেকে আইডি বের করা হচ্ছে
+    const pathMatch = location.pathname.match(/\/product\/([^/]+)\.html$/);
+    const productId = urlParams.get("id") || (pathMatch ? pathMatch[1] : null);
 
     let productData = null;
     let selectedVariantIndex = 0;
@@ -309,8 +312,6 @@
         productData.reviewCount = count;
         renderRatingSummary();
       } catch (e) {
-        // রেটিং রিক্যালকুলেট না হলেও রিভিউ সেভ হয়ে গেছে, তাই এখানে শুধু
-        // লগ করা হচ্ছে, ইউজারকে ব্লক করা হচ্ছে না।
         console.error("রেটিং রিক্যালকুলেট করতে সমস্যা হয়েছে:", e);
       }
     }
