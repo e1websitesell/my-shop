@@ -1,6 +1,3 @@
-// settings/site থেকে থিম + শপ ইনফো লোড করে CSS ভ্যারিয়েবল বসিয়ে দেয়।
-// প্রতিটা কাস্টমার-ফেসিং পেজে loadThemeAndSettings() কল করতে হবে।
-
 import { db } from "./firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -21,7 +18,7 @@ export async function loadThemeAndSettings() {
     const snap = await getDoc(doc(db, "settings", "site"));
     if (snap.exists()) settings = snap.data();
   } catch (e) {
-    // সেটিংস না পেলেও সাইট ডিফল্ট স্টাইলে চলবে, ক্রাশ করবে না
+    console.error("settings/site লোড করতে সমস্যা হয়েছে (Firebase config ঠিক আছে কিনা চেক করুন):", e);
   }
 
   const theme = settings.theme || {
