@@ -114,7 +114,7 @@
 
   <script type="module">
     import { db } from "./assets/js/firebase-config.js";
-    import { loadThemeAndSettings } from "./assets/js/theme-loader.js";
+    import { loadThemeAndSettings, trackAddToCart } from "./assets/js/theme-loader.js";
     import { getLang, setLang, applyTranslations, t } from "./assets/js/translations.js";
     import { addToCart, updateCartBadge } from "./assets/js/cart.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -228,7 +228,6 @@
 
         return (
           "<div class='product-card-wrap'>" +
-            // স্ট্যাটিক জেনারেটেড পেজে যাচ্ছে (SEO/GEO-এর জন্য), ?id= ফরম্যাট না
             "<a href='product/" + p.id + ".html' class='product-card'>" +
               "<div class='product-img' style=\"background-image:url('" + escapeAttr(img) + "');\"></div>" +
               "<div class='product-info'>" +
@@ -249,7 +248,7 @@
           if (!product) return;
           const lang2 = getLang();
           const name2 = lang2 === "bn" ? (product.name_bn || product.name_en) : (product.name_en || product.name_bn);
-          addToCart({
+          const item = {
             productId: product.id,
             variantCode: product.id,
             variantName: "",
@@ -257,8 +256,10 @@
             price: product.discountPrice || product.basePrice,
             image: (product.images && product.images[0]) || "",
             qty: 1
-          });
+          };
+          addToCart(item);
           updateCartBadge();
+          trackAddToCart(item);
           btn.textContent = lang2 === "bn" ? "যুক্ত হয়েছে ✓" : "Added ✓";
           setTimeout(() => { btn.textContent = t("add_to_cart"); }, 1500);
         });
