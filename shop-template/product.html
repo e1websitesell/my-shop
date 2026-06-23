@@ -174,7 +174,7 @@
 
   <script type="module">
     import { db, auth } from "./assets/js/firebase-config.js";
-    import { loadThemeAndSettings } from "./assets/js/theme-loader.js";
+    import { loadThemeAndSettings, trackAddToCart } from "./assets/js/theme-loader.js";
     import { getLang, setLang, applyTranslations, t } from "./assets/js/translations.js";
     import { addToCart, updateCartBadge } from "./assets/js/cart.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -195,8 +195,6 @@
     });
 
     const urlParams = new URLSearchParams(location.search);
-    // স্ট্যাটিক জেনারেটেড পেজে (যেমন /product/abc123.html) ?id= থাকবে না,
-    // তখন ফাইলনেম থেকে আইডি বের করা হচ্ছে
     const pathMatch = location.pathname.match(/\/product\/([^/]+)\.html$/);
     const productId = urlParams.get("id") || (pathMatch ? pathMatch[1] : null);
 
@@ -385,7 +383,7 @@
         ? variant.priceOverride
         : (productData.discountPrice || productData.basePrice);
 
-      addToCart({
+      const item = {
         productId,
         variantCode: variant ? variant.productCode : productId,
         variantName: variant ? variant.variantName : "",
@@ -393,8 +391,11 @@
         price,
         image: (productData.images && productData.images[0]) || "",
         qty
-      });
+      };
+
+      addToCart(item);
       updateCartBadge();
+      trackAddToCart(item);
 
       const btn = document.getElementById("addToCartBtn");
       const original = btn.textContent;
