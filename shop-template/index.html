@@ -203,6 +203,7 @@
           grid.appendChild(card);
         });
       } catch (e) {
+        console.error("ক্যাটাগরি লোড করতে সমস্যা হয়েছে:", e);
         empty.textContent = "ক্যাটাগরি লোড করতে সমস্যা হয়েছে।";
         empty.style.display = "block";
       }
@@ -231,7 +232,8 @@
           const stars = p.avgRating ? "★".repeat(Math.round(p.avgRating)) : "";
 
           const card = document.createElement("a");
-          card.href = "product.html?id=" + docSnap.id;
+          // স্ট্যাটিক জেনারেটেড পেজে যাচ্ছে (SEO/GEO-এর জন্য), ?id= ফরম্যাট না
+          card.href = "product/" + docSnap.id + ".html";
           card.className = "product-card";
           card.innerHTML =
             "<div class='product-img' style=\"background-image:url('" + escapeAttr(img) + "');\"></div>" +
@@ -243,6 +245,7 @@
           grid.appendChild(card);
         });
       } catch (e) {
+        console.error("প্রোডাক্ট লোড করতে সমস্যা হয়েছে:", e);
         empty.textContent = "প্রোডাক্ট লোড করতে সমস্যা হয়েছে।";
         empty.style.display = "block";
       }
