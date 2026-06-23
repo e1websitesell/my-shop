@@ -140,7 +140,8 @@
           b.addEventListener("click", () => deleteReview(b.dataset.product, b.dataset.id));
         });
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" class="muted">লোড করতে সমস্যা হয়েছে।</td></tr>`;
+        console.error("রিভিউ লোড করতে সমস্যা হয়েছে:", e);
+        tbody.innerHTML = `<tr><td colspan="5" class="muted">লোড করতে সমস্যা হয়েছে। কনসোল (F12) চেক করুন বিস্তারিত জানার জন্য।</td></tr>`;
       }
     }
 
@@ -151,7 +152,8 @@
         await recalcProductRating(productId);
         loadReviews();
       } catch (e) {
-        alert("ডিলিট করতে সমস্যা হয়েছে।");
+        console.error("রিভিউ ডিলিট করতে সমস্যা হয়েছে:", e);
+        alert("ডিলিট করতে সমস্যা হয়েছে: " + e.message);
       }
     }
 
@@ -171,7 +173,9 @@
         await updateDoc(doc(db, "products", productId), { avgRating, reviewCount: count });
       } catch (e) {
         // রিভিউ ডিলিট হয়ে গেছে, কিন্তু রেটিং রিক্যালকুলেট করতে সমস্যা হলে
-        // প্রোডাক্টটা products.html-এ একবার এডিট করে সেভ করলেও ম্যানুয়ালি ঠিক করা যাবে
+        // প্রোডাক্টটা products.html-এ একবার এডিট করে সেভ করলেও ম্যানুয়ালি ঠিক করা যাবে।
+        // আসল কারণ জানার জন্য কনসোলে লগ করা হচ্ছে:
+        console.error("রেটিং রিক্যালকুলেট করতে সমস্যা হয়েছে:", e);
       }
     }
 
